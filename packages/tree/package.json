@@ -1,0 +1,9 @@
+{
+  "name": "@xstate/tree",
+  "version": "0.0.0",
+  "main": "dist/xstate-tree.cjs.js",
+  "devDependencies": {
+    "@tsconfig/node18": "^2.0.1",
+    "@tsconfig/strictest": "^2.0.1"
+  }
+}
