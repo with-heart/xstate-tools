@@ -9,6 +9,11 @@ export enum NodeKind {
 }
 
 /**
+ * A union of all `Node` types that have child nodes.
+ */
+export type HasChildren = MachineFile | Machine | MachineConfig;
+
+/**
  * The base type for all node types in the tree.
  */
 export interface Node {
