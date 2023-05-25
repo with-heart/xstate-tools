@@ -44,6 +44,7 @@ const updatedMachineConfig = factory.updateMachineConfig(
 
 const updatedMachine = factory.updateMachine(machine, updatedMachineConfig);
 
+// @ts-expect-error unused var
 const updatedMachineFile = factory.updateMachineFile(machineFile, [
   updatedMachine,
 ]);

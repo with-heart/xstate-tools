@@ -33,6 +33,7 @@ const machine: Machine = {
 };
 
 // a machine file node with some machines
+// @ts-expect-error unused var
 const machineFile: MachineFile = {
   // each type of node has a unique kind identifier
   kind: NodeKind.MachineFile,
