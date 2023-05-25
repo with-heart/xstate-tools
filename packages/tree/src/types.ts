@@ -1,3 +1,7 @@
+export type Mutable<T> = {
+  -readonly [Key in keyof T]: T[Key];
+};
+
 /**
  * Unique identifier for each node type.
  */
@@ -19,6 +23,8 @@ export type HasChildren = MachineFile | Machine | MachineConfig;
 export interface Node {
   /** Unique identifier for this type of node. */
   readonly kind: NodeKind;
+  /** The parent node of the node. */
+  readonly parent: Node;
 }
 
 /**
@@ -26,6 +32,7 @@ export interface Node {
  */
 export interface MachineFile extends Node {
   readonly kind: NodeKind.MachineFile;
+  readonly parent: never;
 
   /** The machines contained in this file. */
   readonly machines: Machine[];
@@ -36,6 +43,7 @@ export interface MachineFile extends Node {
  */
 export interface Machine extends Node {
   readonly kind: NodeKind.Machine;
+  readonly parent: MachineFile;
 
   /** The machine's config node. */
   readonly config: MachineConfig;
@@ -46,6 +54,7 @@ export interface Machine extends Node {
  */
 export interface MachineConfig extends Node {
   readonly kind: NodeKind.MachineConfig;
+  readonly parent: Machine;
 
   /** The machine's id node. */
   readonly id?: Id | undefined;
@@ -56,6 +65,7 @@ export interface MachineConfig extends Node {
  */
 export interface Id extends Node {
   readonly kind: NodeKind.Id;
+  readonly parent: MachineConfig;
 
   /** The text value of the id. */
   readonly value: string;

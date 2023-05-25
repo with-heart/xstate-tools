@@ -1,10 +1,22 @@
-import { Id, Machine, MachineConfig, MachineFile, NodeKind } from './types';
+import {
+  Id,
+  Machine,
+  MachineConfig,
+  MachineFile,
+  Mutable,
+  Node,
+  NodeKind,
+} from './types';
+
+const baseCreateNode = <N extends Node>(kind: N['kind']): Mutable<N> =>
+  ({ kind } as N);
 
 export function createMachineFile(machines: Machine[]): MachineFile {
-  return {
-    kind: NodeKind.MachineFile,
-    machines,
-  };
+  const node = baseCreateNode<MachineFile>(NodeKind.MachineFile);
+
+  node.machines = machines;
+
+  return node;
 }
 
 export function updateMachineFile(
@@ -15,10 +27,11 @@ export function updateMachineFile(
 }
 
 export function createMachine(config: MachineConfig): Machine {
-  return {
-    kind: NodeKind.Machine,
-    config,
-  };
+  const node = baseCreateNode<Machine>(NodeKind.Machine);
+
+  node.config = config;
+
+  return node;
 }
 
 export function updateMachine(node: Machine, config: MachineConfig): Machine {
@@ -26,10 +39,11 @@ export function updateMachine(node: Machine, config: MachineConfig): Machine {
 }
 
 export function createMachineConfig(id?: Id): MachineConfig {
-  return {
-    kind: NodeKind.MachineConfig,
-    id,
-  };
+  const node = baseCreateNode<MachineConfig>(NodeKind.MachineConfig);
+
+  node.id = id;
+
+  return node;
 }
 
 export function updateMachineConfig(
@@ -40,10 +54,11 @@ export function updateMachineConfig(
 }
 
 export function createId(value: string): Id {
-  return {
-    kind: NodeKind.Id,
-    value,
-  };
+  const node = baseCreateNode<Id>(NodeKind.Id);
+
+  node.value = value;
+
+  return node;
 }
 
 export function updateId(node: Id, value: string): Id {

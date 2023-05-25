@@ -12,6 +12,8 @@ import {
 const id: Id = {
   kind: NodeKind.Id,
   value: 'an-id',
+  // parent properties added separately by tooling
+  parent: undefined as never,
 };
 
 // a machine config node
@@ -19,6 +21,7 @@ const machineConfig: MachineConfig = {
   kind: NodeKind.MachineConfig,
   // we can use our id node here
   id,
+  parent: undefined as never,
 };
 
 // a machine node
@@ -26,6 +29,7 @@ const machine: Machine = {
   kind: NodeKind.Machine,
   // we can use our config node here
   config: machineConfig,
+  parent: undefined as never,
 };
 
 // a machine file node with some machines
@@ -43,15 +47,22 @@ const machineFile: MachineFile = {
         id: {
           kind: NodeKind.Id,
           value: 'some-id',
+          parent: undefined as never,
         },
+        parent: undefined as never,
       },
+      parent: undefined as never,
     },
     // machine with an empty config (no id)
     {
       kind: NodeKind.Machine,
       config: {
         kind: NodeKind.MachineConfig,
+        parent: undefined as never,
       },
+      parent: undefined as never,
     },
   ],
+  // a `MachineFile` node never has a parent (it's the root node)
+  parent: undefined as never,
 };
