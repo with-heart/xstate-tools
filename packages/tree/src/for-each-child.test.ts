@@ -1,5 +1,10 @@
 import { Node, factory, isId, isMachine } from '..';
-import { forEachChild, visitNode, visitNodes } from '../for-each-child';
+import {
+  forEachChild,
+  forEachChildRecursive,
+  visitNode,
+  visitNodes,
+} from './for-each-child';
 
 describe('forEachChild', () => {
   test('iterates through each child of a node', () => {
@@ -133,6 +138,123 @@ describe('forEachChild', () => {
 
       return forEachChild(node, visitNode);
     }
+  });
+});
+
+describe('forEachChildRecursive', () => {
+  test('calls callbacks correctly', () => {
+    const nodeCallback = jest.fn();
+    const nodesCallback = jest.fn();
+
+    const machines = [
+      factory.createMachine(
+        factory.createMachineConfig(factory.createId('id-1')),
+      ),
+      factory.createMachine(
+        factory.createMachineConfig(factory.createId('id-2')),
+      ),
+    ];
+    const machineFile = factory.createMachineFile(machines);
+
+    forEachChildRecursive(machineFile, nodeCallback, nodesCallback);
+
+    expect(nodesCallback).toHaveBeenCalledTimes(1);
+    expect(nodesCallback).toHaveBeenCalledWith(machines, machineFile);
+
+    expect(nodeCallback).toHaveBeenCalledTimes(6);
+    expect(nodeCallback).toHaveBeenNthCalledWith(1, machines[0], machineFile);
+    expect(nodeCallback).toHaveBeenNthCalledWith(
+      2,
+      machines[0]!.config,
+      machines[0],
+    );
+    expect(nodeCallback).toHaveBeenNthCalledWith(
+      3,
+      machines[0]!.config.id,
+      machines[0]!.config,
+    );
+    expect(nodeCallback).toHaveBeenNthCalledWith(4, machines[1], machineFile);
+    expect(nodeCallback).toHaveBeenNthCalledWith(
+      5,
+      machines[1]!.config,
+      machines[1],
+    );
+    expect(nodeCallback).toHaveBeenNthCalledWith(
+      6,
+      machines[1]!.config.id,
+      machines[1]!.config,
+    );
+  });
+
+  test('if nodeCallback returns a value, stops iteration and returns that value', () => {
+    const nodeCallback = jest.fn((node: Node) => {
+      if (isId(node)) {
+        return node.value;
+      }
+      return undefined;
+    });
+
+    const machines = [
+      factory.createMachine(factory.createMachineConfig()),
+      factory.createMachine(
+        factory.createMachineConfig(factory.createId('id-1')),
+      ),
+      factory.createMachine(
+        factory.createMachineConfig(factory.createId('id-2')),
+      ),
+    ];
+    const machineFile = factory.createMachineFile(machines);
+
+    const result = forEachChildRecursive(machineFile, nodeCallback);
+
+    expect(result).toBe('id-1');
+
+    expect(nodeCallback).toHaveBeenCalledTimes(5);
+    expect(nodeCallback).toHaveBeenNthCalledWith(1, machines[0], machineFile);
+    expect(nodeCallback).toHaveBeenNthCalledWith(
+      2,
+      machines[0]!.config,
+      machines[0],
+    );
+    expect(nodeCallback).toHaveBeenNthCalledWith(3, machines[1], machineFile);
+    expect(nodeCallback).toHaveBeenNthCalledWith(
+      4,
+      machines[1]!.config,
+      machines[1],
+    );
+    expect(nodeCallback).toHaveBeenNthCalledWith(
+      5,
+      machines[1]!.config.id,
+      machines[1]!.config,
+    );
+  });
+
+  test('if nodesCallback returns a value, stops iteration and returns that value', () => {
+    const nodeCallback = jest.fn();
+    const nodesCallback = jest.fn(() => 'result');
+
+    const machines = [
+      factory.createMachine(factory.createMachineConfig()),
+      factory.createMachine(
+        factory.createMachineConfig(factory.createId('id-1')),
+      ),
+      factory.createMachine(
+        factory.createMachineConfig(factory.createId('id-2')),
+      ),
+    ];
+    const machineFile = factory.createMachineFile(machines);
+
+    const result = forEachChildRecursive(
+      machineFile,
+      nodeCallback,
+      nodesCallback,
+    );
+
+    expect(result).toBe('result');
+
+    expect(nodeCallback).not.toHaveBeenCalled();
+    expect(nodesCallback).toHaveBeenCalledTimes(1);
+    expect(nodesCallback).toHaveBeenCalledWith(machines, machineFile);
   });
 });
 

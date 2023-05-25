@@ -201,6 +201,99 @@ export function forEachChild<T>(
   return fn === undefined ? undefined : fn(node, nodeCallback, nodesCallback);
 }
 
+/**
+ * Invokes a callback for each descendant of the given node along with the
+ * descendant's parent node.
+ *
+ * The `nodeCallback` callback is invoked for each descendant node. If
+ * `nodesCallback` is provided, it is invoked for each descendant array. Unlike
+ * `forEachChild`, descendant arrays are also flattened and passed to
+ * `nodeCallback`.
+ *
+ * If a callback returns a truthy value, iteration stops and that value is
+ * returned. Otherwise, `undefined` is returned.
+ *
+ * @param node a given node to visit its descendants and their parents
+ * @param nodeCallback a callback to be invoked for all descendant nodes
+ * @param nodesCallback a callback to be invoked for descendant arrays
+ *
+ * @example
+ * const machineFile = factory.createMachineFile([
+ *   factory.createMachine(factory.createId('some-id')),
+ *   factory.createMachine(),
+ * ]);
+ *
+ * forEachChildRecursive(machineFile, visitNode, visitNodes); // logs the following:
+ * // nodes Machine, Machine with parent MachineFile
+ * // node Machine with parent MachineFile
+ * // node Id with parent Machine
+ * // node Machine with parent MachineFile
+ *
+ * function visitNode(node: Node, parent: Node) {
+ *   console.log(`node ${node.kind} with parent ${parent.kind}`);
+ * }
+ *
+ * function visitNodes(nodes: Node[], parent: Node) {
+ *   console.log(
+ *     `nodes ${nodes.map((node) => node.kind).join(', ')} with parent ${
+ *       parent.kind
+ *     }`,
+ *   );
+ * }
+ */
+export function forEachChildRecursive<T>(
+  rootNode: Node,
+  nodeCallback: (node: Node, parent: Node) => T | undefined,
+  nodesCallback?: (nodes: Node[], parent: Node) => T | undefined,
+): T | undefined {
+  const queue: (Node | Node[])[] = gatherPossibleChildren(rootNode);
+  const parents: Node[] = [];
+  while (parents.length < queue.length) {
+    parents.push(rootNode);
+  }
+
+  while (queue.length !== 0) {
+    const current = queue.pop()!;
+    const parent = parents.pop()!;
+
+    if (Array.isArray(current)) {
+      if (nodesCallback) {
+        const result = nodesCallback(current, parent);
+        if (result) {
+          return result;
+        }
+      }
+
+      for (const node of [...current].reverse()) {
+        queue.push(node);
+        parents.push(parent);
+      }
+    } else {
+      const result = nodeCallback(current, parent);
+      if (result) {
+        return result;
+      }
+
+      for (const child of gatherPossibleChildren(current)) {
+        queue.push(child);
+        parents.push(current);
+      }
+    }
+  }
+
+  return undefined;
+}
+
+function gatherPossibleChildren(node: Node) {
+  const children: (Node | Node[])[] = [];
+  forEachChild(node, addWorkItem, addWorkItem);
+  return children;
+
+  function addWorkItem(n: Node | Node[]) {
+    children.unshift(n);
+  }
+}
+
 export function visitNode<T>(
   nodeCallback: (node: Node) => T | undefined,
   node: Node | undefined,
