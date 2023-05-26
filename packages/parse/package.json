@@ -1,0 +1,13 @@
+{
+  "name": "@xstate/parse",
+  "version": "0.0.0",
+  "main": "dist/xstate-parse.cjs.js",
+  "dependencies": {
+    "@xstate/tree": "*",
+    "typescript": "^5.0.4"
+  },
+  "devDependencies": {
+    "@tsconfig/node18": "^2.0.1",
+    "@tsconfig/strictest": "^2.0.1"
+  }
+}
