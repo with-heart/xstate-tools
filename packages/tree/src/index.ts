@@ -1,3 +1,4 @@
+export * from './create-machine-file';
 export * as factory from './factory';
 export { forEachChild } from './for-each-child';
 export * from './predicates';
