@@ -25,6 +25,11 @@ export interface Node {
   readonly kind: NodeKind;
   /** The parent node of the node. */
   readonly parent: Node;
+  /** The start and end positions of the node's text in the file. */
+  readonly pos: {
+    readonly start: number;
+    readonly end: number;
+  };
 }
 
 /**
