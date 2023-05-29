@@ -39,6 +39,10 @@ export interface MachineFile extends Node {
   readonly kind: NodeKind.MachineFile;
   readonly parent: never;
 
+  /** The name of the file. */
+  readonly fileName: string;
+  /** The source text of the file. */
+  readonly sourceText: string;
   /** The machines contained in this file. */
   readonly machines: Machine[];
 }
