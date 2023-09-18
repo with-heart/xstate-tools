@@ -1,0 +1,11 @@
+{
+  "name": "@xstate/syntax-tree",
+  "version": "0.0.0",
+  "main": "dist/xstate-syntax-tree.cjs.js",
+  "scripts": {},
+  "dependencies": {},
+  "devDependencies": {
+    "@tsconfig/node18": "^18.2.2",
+    "@tsconfig/strictest": "^2.0.2"
+  }
+}
