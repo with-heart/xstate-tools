@@ -9,6 +9,11 @@ export enum NodeKind {
 }
 
 /**
+ * Node types which have child nodes.
+ */
+export type HasChildren = Machine | MachineConfig | MachineFile;
+
+/**
  * The base node type. Properties defined on `Node` are shared by all node
  * types.
  */
