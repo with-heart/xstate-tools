@@ -1,4 +1,24 @@
-import { Id, Machine, MachineConfig, MachineFile, NodeKind } from './types';
+import {
+  Id,
+  Machine,
+  MachineConfig,
+  MachineFile,
+  Mutable,
+  Node,
+  NodeKind,
+} from './types';
+
+/**
+ * Create a mutable node using the given kind.
+ *
+ * Allows us to create a node without having to define all of its properties
+ * (like `parent` which is assigned separately).
+ */
+function createBaseNode<NodeType extends Node>(
+  kind: NodeKind,
+): Mutable<NodeType> {
+  return { kind } as NodeType;
+}
 
 /**
  * Create an `Id` node.
@@ -8,10 +28,11 @@ import { Id, Machine, MachineConfig, MachineFile, NodeKind } from './types';
  * id.value // => 'foo'
  */
 export function createId(value: string): Id {
-  return {
-    kind: NodeKind.Id,
-    value,
-  };
+  const node = createBaseNode<Id>(NodeKind.Id);
+
+  node.value = value;
+
+  return node;
 }
 
 /**
@@ -23,10 +44,11 @@ export function createId(value: string): Id {
  * machine.config === config // => true
  */
 export function createMachine(config: MachineConfig): Machine {
-  return {
-    kind: NodeKind.Machine,
-    config,
-  };
+  const node = createBaseNode<Machine>(NodeKind.Machine);
+
+  node.config = config;
+
+  return node;
 }
 
 /**
@@ -38,10 +60,11 @@ export function createMachine(config: MachineConfig): Machine {
  * config.id === id // => true
  */
 export function createMachineConfig(id?: Id): MachineConfig {
-  return {
-    kind: NodeKind.MachineConfig,
-    id,
-  };
+  const node = createBaseNode<MachineConfig>(NodeKind.MachineConfig);
+
+  node.id = id;
+
+  return node;
 }
 
 /**
@@ -53,8 +76,9 @@ export function createMachineConfig(id?: Id): MachineConfig {
  * machineFile.machines === machines // => true
  */
 export function createMachineFile(machines: Machine[]): MachineFile {
-  return {
-    kind: NodeKind.MachineFile,
-    machines,
-  };
+  const node = createBaseNode<MachineFile>(NodeKind.MachineFile);
+
+  node.machines = machines;
+
+  return node;
 }

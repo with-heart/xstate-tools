@@ -1,4 +1,11 @@
 /**
+ * Make all properties of a type mutable.
+ */
+export type Mutable<T> = {
+  -readonly [Key in keyof T]: T[Key];
+};
+
+/**
  * Defines a unique kind identifier for each type of node in the tree.
  */
 export enum NodeKind {
@@ -20,6 +27,8 @@ export type HasChildren = Machine | MachineConfig | MachineFile;
 export interface Node {
   /** The unique kind identifier for this type of node. */
   readonly kind: NodeKind;
+  /** The parent node for this type of node. */
+  readonly parent: Node;
 }
 
 /**
@@ -27,6 +36,7 @@ export interface Node {
  */
 export interface Id extends Node {
   readonly kind: NodeKind.Id;
+  readonly parent: MachineConfig;
 
   /** The string value of the id. */
   readonly value: string;
@@ -37,6 +47,7 @@ export interface Id extends Node {
  */
 export interface Machine extends Node {
   readonly kind: NodeKind.Machine;
+  readonly parent: MachineFile;
 
   /** The machine's config object node. */
   readonly config: MachineConfig;
@@ -47,6 +58,7 @@ export interface Machine extends Node {
  */
 export interface MachineConfig extends Node {
   readonly kind: NodeKind.MachineConfig;
+  readonly parent: Machine;
 
   /** The machine's id node. */
   readonly id?: Id | undefined;
@@ -57,6 +69,8 @@ export interface MachineConfig extends Node {
  */
 export interface MachineFile extends Node {
   readonly kind: NodeKind.MachineFile;
+  /** Root node cannot have a parent. */
+  readonly parent: never;
 
   /** The machine definitions contained in this file. */
   readonly machines: Machine[];
