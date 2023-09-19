@@ -91,6 +91,115 @@ export function forEachChild<T>(
 }
 
 /**
+ * Invokes a callback for each descendant node of the given node along with the
+ * descendant's parent node.
+ *
+ * The callback invoked for each child depends on the child's type:
+ *
+ * - if the child is an individual node, `nodeCallback` is called with the node
+ * - if the child is an array and `nodesCallback` is provided, `nodesCallback`
+ * is called with the child array
+ * - if the child is an array and `nodesCallback` is not provided,
+ * `nodeCallback` is called once for each node in the array
+ *
+ * If a callback returns a truthy value, recursion stops and that value is
+ * returned. Otherwise, `undefined` is returned.
+ *
+ * @param rootNode the root node with descendant nodes to recurse over
+ * @param nodeCallback a callback function which handles individual child nodes
+ * @param nodesCallback a callback function which handles array child nodes. if
+ * undefined, nodeCallback is called once for each node in the array
+ *
+ * @example
+ * const machineFile = factory.createMachineFile([
+ *   // machine with config with id
+ *   factory.createMachine(
+ *     factory.createMachineConfig(factory.createId('some-id')),
+ *   ),
+ *   // machine with config without id
+ *   factory.createMachine(factory.createMachineConfig()),
+ * ]);
+ *
+ * forEachChildRecursive(
+ *   machineFile,
+ *   (node: Node, parent: Node) =>
+ *     console.log(`node ${node.kind} with parent ${parent.kind}`),
+ *   (nodes: Node[], parent: Node) =>
+ *     console.log(`nodes of type ${nodes[0]} with parent ${parent.kind}`),
+ * );
+ * // => nodes of type Machine with parent MachineFile
+ * // => node Machine with parent MachineFile
+ * // => node Id with parent Machine
+ * // => node Machine with parent MachineFile
+ * // => node MachineConfig with parent Machine
+ */
+export function forEachChildRecursive<T>(
+  rootNode: Node,
+  nodeCallback: (node: Node, parent: Node) => T | undefined,
+  nodesCallback?: (nodes: Node[], parent: Node) => T | undefined,
+): T | undefined {
+  // queue initialized with the root node's children
+  const queue: (Node | Node[])[] = gatherPossibleChildren(rootNode);
+  // empty parents queue
+  const parents: Node[] = [];
+
+  // add rootNode as a parent for each child in queue
+  while (parents.length < queue.length) {
+    parents.push(rootNode);
+  }
+
+  // iterate as long as there are nodes in the queue
+  while (queue.length !== 0) {
+    const current = queue.pop()!;
+    const parent = parents.pop()!;
+
+    if (Array.isArray(current)) {
+      // if we have a nodesCallback, call it with the nodes and their parent. if
+      // it returns a result, stop recursing and return that value
+      if (nodesCallback) {
+        const result = nodesCallback(current, parent);
+
+        if (result) {
+          return result;
+        }
+      }
+
+      // add each child in the current array to the queue and a parent for each
+      for (const node of [...current].reverse()) {
+        queue.push(node);
+        parents.push(parent);
+      }
+    } else {
+      // if we have a nodeCallback, call it with the node and its parent. if it
+      // returns a result, stop recursing and return that value
+      const result = nodeCallback(current, parent);
+
+      if (result) {
+        return result;
+      }
+
+      // add each child of the current node to the queue and a parent for each
+      for (const child of gatherPossibleChildren(current)) {
+        queue.push(child);
+        parents.push(current);
+      }
+    }
+  }
+
+  return undefined;
+}
+
+function gatherPossibleChildren(node: Node) {
+  const children: (Node | Node[])[] = [];
+  forEachChild(node, addWorkItem, addWorkItem);
+  return children;
+
+  function addWorkItem(n: Node | Node[]) {
+    children.unshift(n);
+  }
+}
+
+/**
  * Handles applying a node callback to a node.
  *
  * Calls `nodeCallback` with `node` if `node` is defined. If `nodeCallback`
