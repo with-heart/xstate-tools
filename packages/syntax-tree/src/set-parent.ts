@@ -1,3 +1,4 @@
+import { forEachChildRecursive } from './for-each-child';
 import { Mutable, Node } from './types';
 
 /**
@@ -23,4 +24,26 @@ export function setParent<NodeType extends Node>(
     (child as Mutable<NodeType>).parent = parent;
   }
   return child;
+}
+
+/**
+ * Bypasses immutability and directly and sets the `parent` property of each
+ * node in a tree recursively.
+ */
+export function setParentRecursive<NodeType extends Node>(
+  rootNode: NodeType,
+): NodeType;
+export function setParentRecursive<NodeType extends Node>(
+  rootNode: NodeType | undefined,
+): NodeType | undefined {
+  if (!rootNode) {
+    return undefined;
+  }
+
+  forEachChildRecursive(rootNode, bindChildToParent);
+  return rootNode;
+
+  function bindChildToParent(child: Node, parent: Node) {
+    setParent(child, parent);
+  }
 }
