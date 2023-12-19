@@ -2,6 +2,19 @@
   "name": "@xstate/parse",
   "version": "0.0.0",
   "main": "dist/xstate-parse.cjs.js",
+  "module": "dist/xstate-parse.esm.js",
+  "exports": {
+    ".": {
+      "types": {
+        "import": "./dist/xstate-parse.cjs.mjs",
+        "default": "./dist/xstate-parse.cjs.js"
+      },
+      "module": "./dist/xstate-parse.esm.js",
+      "import": "./dist/xstate-parse.cjs.mjs",
+      "default": "./dist/xstate-parse.cjs.js"
+    },
+    "./package.json": "./package.json"
+  },
   "dependencies": {
     "@xstate/tree": "*",
     "typescript": "^5.0.4"

@@ -6,10 +6,25 @@ export type Mutable<T> = {
  * Unique identifier for each node type.
  */
 export enum NodeKind {
+  ActionFunction = 'ActionFunction',
+  ActionObject = 'ActionObject',
+  ActionObjectParam = 'ActionObjectParam',
+  ActionString = 'ActionString',
+  Entry = 'Entry',
+  Exit = 'Exit',
   Id = 'Id',
   Machine = 'Machine',
   MachineConfig = 'MachineConfig',
+  MachineImplementations = 'MachineImplementations',
   MachineFile = 'MachineFile',
+  On = 'On',
+  State = 'State',
+  StateConfig = 'StateConfig',
+  States = 'States',
+  Transition = 'Transition',
+  TransitionActions = 'TransitionActions',
+  TransitionConfig = 'TransitionConfig',
+  TransitionTarget = 'TransitionTarget',
 }
 
 /**
@@ -70,7 +85,7 @@ export interface MachineConfig extends Node {
 }
 
 /**
- * The id of a machine.
+ * The id of a machine or state.
  */
 export interface Id extends Node {
   readonly kind: NodeKind.Id;
@@ -78,4 +93,78 @@ export interface Id extends Node {
 
   /** The text value of the id. */
   readonly value: string;
+}
+
+export interface States extends Node {
+  readonly kind: NodeKind.States;
+  readonly parent: MachineConfig | States;
+
+  readonly states: State[];
+}
+
+export interface State extends Node {
+  readonly kind: NodeKind.State;
+  readonly parent: States;
+
+  readonly key: string;
+  readonly config: StateConfig;
+}
+
+export interface StateConfig extends Node {
+  readonly kind: NodeKind.StateConfig;
+  readonly parent: State;
+
+  readonly entry?: Entry;
+  readonly exit?: Exit;
+  /** The transitions definition for this state. */
+  readonly on?: On;
+  /** The states for this state. */
+  readonly states?: States;
+}
+
+export interface On extends Node {
+  readonly kind: NodeKind.On;
+  readonly parent: StateConfig;
+}
+
+export interface ActionsBase extends Node {
+  readonly isActionsArray?: boolean;
+}
+
+export interface Entry extends Node {
+  readonly kind: NodeKind.Entry;
+  readonly parent: StateConfig | MachineConfig;
+
+  readonly actions: ActionConfig[];
+}
+
+export interface Exit extends Node {
+  readonly kind: NodeKind.Exit;
+  readonly parent: StateConfig | MachineConfig;
+
+  readonly actions: ActionConfig[];
+}
+
+export type ActionConfig = ActionFunction | ActionReference;
+
+export type ActionReference = ActionObject | ActionString;
+
+export interface ActionFunction extends Node {
+  readonly kind: NodeKind.ActionFunction;
+  readonly parent: Entry | Exit | TransitionActions;
+}
+
+export interface ActionObject extends Node {
+  readonly kind: NodeKind.ActionObject;
+  readonly parent: Entry | Exit | TransitionActions;
+
+  readonly type: string;
+  readonly params: ActionObjectParam[];
+}
+
+export interface ActionString extends Node {
+  readonly kind: NodeKind.ActionString;
+  readonly parent: Entry | Exit | TransitionActions;
+
+  readonly type: string;
 }

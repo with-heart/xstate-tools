@@ -1,6 +1,10 @@
 /**@type {import('eslint').Linter.Config} */
 // eslint-disable-next-line no-undef
 module.exports = {
+  overrides: {
+    files: ['apps/xstate-tree-viewer/**/*'],
+    extends: 'next/core-web-vitals',
+  },
   // root: true,
   // parser: '@typescript-eslint/parser',
   // plugins: [

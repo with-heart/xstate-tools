@@ -2,6 +2,19 @@
   "name": "@xstate/tree",
   "version": "0.0.0",
   "main": "dist/xstate-tree.cjs.js",
+  "module": "dist/xstate-tree.esm.js",
+  "exports": {
+    ".": {
+      "types": {
+        "import": "./dist/xstate-tree.cjs.mjs",
+        "default": "./dist/xstate-tree.cjs.js"
+      },
+      "module": "./dist/xstate-tree.esm.js",
+      "import": "./dist/xstate-tree.cjs.mjs",
+      "default": "./dist/xstate-tree.cjs.js"
+    },
+    "./package.json": "./package.json"
+  },
   "devDependencies": {
     "@tsconfig/node18": "^2.0.1",
     "@tsconfig/strictest": "^2.0.1"
